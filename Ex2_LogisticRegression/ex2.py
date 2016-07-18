@@ -4,7 +4,7 @@
 import numpy as np
 import lrFunctions as func
 from matplotlib import pyplot as plt
-
+import scipy.optimize as opt
 
 # Part1. Data Import
 f = open("ex2data1.txt", 'r')
@@ -30,8 +30,21 @@ m = len(Y)
 X_1 = np.ones((m,1))
 X =  np.hstack((X_1,X_2))
 
-ini_theta = np.zeros((X.shape[1],1))
+theta = np.zeros((X.shape[1],1))
 
-cost, grad = func.costFunction(ini_theta,X,Y,m)
 
-print "Cost: ",cost,"  grad: ",grad
+theta, cost, _, _, _ = \
+        opt.fmin(func.costFunction, theta, full_output=True, maxiter= 400, args=(X,Y))
+
+print 'Cost at theta found by fmin: %f' % cost
+print 'theta: %s' % theta
+
+#Part3. Predict
+
+prob = func.sigmoid(np.array([[1,45,85]]).dot(theta.T))
+
+print 'For a student with scores 45 and 85, we predict an admission ' \
+      'probability of ', prob
+
+p = func.predict(theta, X)
+print 'Train Accuracy:', (p == Y).mean() * 100
